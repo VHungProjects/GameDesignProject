@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class DraggableNote : MonoBehaviour
 {
+    public AudioSource audioSource;
+    public AudioClip beginDragClip;
+    
     private Vector3 startPosition;
     private bool isDragging = false;
     private NotePlaceholder closestPlaceholder;
@@ -23,7 +26,11 @@ public class DraggableNote : MonoBehaviour
 
     void OnMouseDown()
     {
-        isDragging = true;
+        if (!isDragging) // Play sound only the first time
+        {
+            PlaySound(beginDragClip); // Fixed variable name
+            isDragging = true;
+        }
     }
 
     void OnMouseUp()
@@ -38,7 +45,7 @@ public class DraggableNote : MonoBehaviour
         }
         else
         {
-            transform.position = startPosition; 
+            transform.position = startPosition;
         }
     }
 
@@ -60,6 +67,15 @@ public class DraggableNote : MonoBehaviour
 
     void RespawnNote()
     {
-        Instantiate(gameObject, startPosition, Quaternion.identity);
+        GameObject newNote = Instantiate(gameObject, startPosition, Quaternion.identity);
+        Destroy(newNote.GetComponent<AudioSource>()); // Remove extra AudioSource if needed
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 }
